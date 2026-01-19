@@ -17,17 +17,34 @@ bot.start((ctx) => {
     ctx.reply('🎮 MLBB Profile Checker Bot\n\nSend: GameID/ServerID\nExample: 772413599/12350');
 });
 
-// Handle text messages
+// Help command
+bot.command('help', (ctx) => {
+    ctx.reply(
+        '🎮 *How to use MLBB Checker Bot*\n\n' +
+        'Just send: `GameID/ServerID`\n\n' +
+        '*Examples:*\n' +
+        '• `772413599/12350`\n' +
+        '• `123456789/12345`\n\n' +
+        'Note: Server ID must be 4-5 digits.',
+        { parse_mode: 'Markdown' }
+    );
+});
+
+// Handle text messages - ONLY MLBB FORMAT
 bot.on('text', async (ctx) => {
     const text = ctx.message.text.trim();
     
-    // Check format: 123456789/12345
+    // Check if it's a command (ignore commands)
+    if (text.startsWith('/')) {
+        return;
+    }
+    
+    // Check format: 123456789/12345 (MLBB format)
     const match = text.match(/^(\d+)\/(\d{4,5})$/);
     
     if (!match) {
-        if (!text.startsWith('/')) {
-            ctx.reply('Format: GameID/ServerID\nExample: 772413599/12350');
-        }
+        // Not MLBB format - DO NOT REPLY
+        // Just ignore the message
         return;
     }
     
@@ -74,7 +91,7 @@ bot.catch((err, ctx) => {
 // Start bot
 bot.launch().then(() => {
     console.log('🤖 MLBB Bot started successfully!');
-    console.log('Bot is running as a background worker...');
+    console.log('Bot is running...');
 });
 
 // Handle shutdown
