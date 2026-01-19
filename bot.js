@@ -2,7 +2,7 @@
 const { Telegraf } = require('telegraf');
 const axios = require('axios');
 
-const bot = new Telegraf('YOUR_BOT_TOKEN_HERE');
+const bot = new Telegraf('8415346626:AAGXRsQclRjeKnoLn1sGX5NzfAySQyO-V9k');
 
 bot.start((ctx) => {
     ctx.reply('Send: GameID/ServerID\nExample: 772413599/12350');
