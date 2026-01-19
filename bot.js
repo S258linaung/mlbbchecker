@@ -1,13 +1,23 @@
-// bot.js - အရမ်းရိုးရှင်းအောင်
+
 const { Telegraf } = require('telegraf');
 const axios = require('axios');
 
-const bot = new Telegraf('8415346626:AAGXRsQclRjeKnoLn1sGX5NzfAySQyO-V9k');
+// Environment variable ကနေယူမယ်
+const BOT_TOKEN = process.env.BOT_TOKEN || '8415346626:AAGXRsQclRjeKnoLn1sGX5NzfAySQyO-V9k';
 
+if (!BOT_TOKEN) {
+    console.error('❌ BOT_TOKEN is missing!');
+    process.exit(1);
+}
+
+const bot = new Telegraf(BOT_TOKEN);
+
+// Start command
 bot.start((ctx) => {
-    ctx.reply('Send: GameID/ServerID\nExample: 772413599/12350');
+    ctx.reply('🎮 MLBB Profile Checker Bot\n\nSend: GameID/ServerID\nExample: 772413599/12350');
 });
 
+// Handle text messages
 bot.on('text', async (ctx) => {
     const text = ctx.message.text.trim();
     
@@ -24,10 +34,11 @@ bot.on('text', async (ctx) => {
     const gameId = match[1];
     const serverId = match[2];
     
+    // Show typing action
     ctx.sendChatAction('typing');
     
     try {
-        // တိုက်ရိုက် original API ကိုခေါ်မယ်
+        // Call the original MLBB API
         const response = await axios.get(
             `https://cekidml.caliph.dev/api/validasi?id=${gameId}&serverid=${serverId}`,
             { timeout: 10000 }
@@ -38,21 +49,34 @@ bot.on('text', async (ctx) => {
         if (data.status === 'success' && data.result) {
             const profile = data.result;
             ctx.reply(
-                `✅ Profile Found!\n\n` +
-                `👤 Nickname: ${profile.nickname}\n` +
-                `🌍 Country: ${profile.country || 'N/A'}\n` +
-                `🆔 Game ID: ${gameId}\n` +
-                `🔧 Server ID: ${serverId}`
+                `✅ *Profile Found!*\n\n` +
+                `👤 *Nickname:* ${profile.nickname}\n` +
+                `🌍 *Country:* ${profile.country || 'N/A'}\n` +
+                `🆔 *Game ID:* ${gameId}\n` +
+                `🔧 *Server ID:* ${serverId}`,
+                { parse_mode: 'Markdown' }
             );
         } else {
-            ctx.reply('❌ Profile not found');
+            ctx.reply('❌ Profile not found. Check your IDs.');
         }
         
     } catch (error) {
-        console.error('Error:', error.message);
-        ctx.reply('❌ Error checking profile');
+        console.error('API Error:', error.message);
+        ctx.reply('❌ Error checking profile. Try again later.');
     }
 });
 
-bot.launch();
-console.log('Bot started!');
+// Error handling
+bot.catch((err, ctx) => {
+    console.error('Bot error:', err);
+});
+
+// Start bot
+bot.launch().then(() => {
+    console.log('🤖 MLBB Bot started successfully!');
+    console.log('Bot is running as a background worker...');
+});
+
+// Handle shutdown
+process.once('SIGINT', () => bot.stop('SIGINT'));
+process.once('SIGTERM', () => bot.stop('SIGTERM'));
