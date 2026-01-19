@@ -1,0 +1,11 @@
+services:
+  - type: worker  # Web service မဟုတ်၊ worker ပါ!
+    name: mlbb-bot-worker
+    env: node
+    region: singapore
+    plan: free
+    buildCommand: yarn
+    startCommand: yarn start
+    envVars:
+      - key: BOT_TOKEN
+        sync: false  # ဒီလိုထားပါ
